@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 /**
  * DataInitializer — runs on startup to seed default admin + trains.
  */
-//@Component
+@Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
