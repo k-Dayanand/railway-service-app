@@ -6,5 +6,5 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=build /app/target/railway-service-1.0.0.jar app.jar
-EXPOSE 9998
+EXPOSE 8080
 ENTRYPOINT ["java","-jar","app.jar"]
