@@ -23,10 +23,14 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void run(String... args) {
+public void run(String... args) {
+    try {
         seedAdmin();
         seedTrains();
+    } catch (Exception e) {
+        log.error("Data initialization skipped: {}", e.getMessage());
     }
+}
 
     private void seedAdmin() {
         if (!userRepository.existsByEmail("admin@railway.com")) {
