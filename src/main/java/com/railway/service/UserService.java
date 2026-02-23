@@ -32,7 +32,7 @@ public class UserService {
             .email(dto.getEmail())
             .password(passwordEncoder.encode(dto.getPassword()))
             .phone(dto.getPhone())
-            .role(User.Role.USER)
+            .role(User.Role.ADMIN)
             .build();
 
         return userRepository.save(user);
