@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAGMENT: sidebar — call with th:replace="fragments/layout :: sidebar(active='dashboard')"
+     ══════════════════════════════════════════════════════════ -->
+<div th:fragment="sidebar(active, role)">
+  <div class="sidebar">
+    <!-- Logo -->
+    <div class="logo">
+      <div class="logo-icon">🚆</div>
+      RailwayMS
+    </div>
+
+    <!-- USER NAV -->
+    <div th:if="${role == 'user'}">
+      <div class="nav-section">Navigation</div>
+      <a th:href="@{/user/dashboard}" class="nav-item" th:classappend="${active == 'home'} ? 'active'">
+        🏠&nbsp;&nbsp;Home
+      </a>
+      <a th:href="@{/user/search}" class="nav-item" th:classappend="${active == 'search'} ? 'active'">
+        🔍&nbsp;&nbsp;Search Trains
+      </a>
+      <a th:href="@{/user/tickets}" class="nav-item" th:classappend="${active == 'tickets'} ? 'active'">
+        🎫&nbsp;&nbsp;My Tickets
+      </a>
+
+      <div class="nav-section">Account</div>
+<a th:href="@{/user/profile}" 
+   class="nav-item"
+   th:classappend="${active == 'profile'} ? 'active'">
+   👤&nbsp;&nbsp;My Profile
+</a>    </div>
+
+    <!-- ADMIN NAV -->
+    <div th:if="${role == 'admin'}">
+      <div class="nav-section">Main Menu</div>
+      <a th:href="@{/admin/dashboard}" class="nav-item" th:classappend="${active == 'home'} ? 'active'">
+        📊&nbsp;&nbsp;Overview
+      </a>
+      <a th:href="@{/admin/trains}" class="nav-item" th:classappend="${active == 'trains'} ? 'active'">
+        🚆&nbsp;&nbsp;Manage Trains
+      </a>
+      <a th:href="@{/admin/bookings}" class="nav-item" th:classappend="${active == 'bookings'} ? 'active'">
+        🎫&nbsp;&nbsp;All Bookings
+      </a>
+      <a th:href="@{/admin/users}" class="nav-item" th:classappend="${active == 'users'} ? 'active'">
+        👤&nbsp;&nbsp;Manage Users
+      </a>
+    </div>
+
+    <div class="sidebar-bottom">
+      <form th:action="@{/logout}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="nav-item danger" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;">
+          ⇠&nbsp;&nbsp;Logout
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAGMENT: topHeader
+     ══════════════════════════════════════════════════════════ -->
+<div th:fragment="topHeader(userName)">
+  <div class="header">
+    <div class="logo-icon">🚆</div>
+    <span style="font-weight:800;font-size:15px;">RailwayMS</span>
+    <div class="hdr-sep"></div>
+    <div class="hdr-chip">
+      <div class="hdr-dot"></div>
+      Online
+    </div>
+<div class="avatar" 
+     th:text="${#strings.isEmpty(userName) ? 'U' : userName.substring(0,1).toUpperCase()}">U</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     FRAGMENT: alerts
+     ══════════════════════════════════════════════════════════ -->
+<div th:fragment="alerts">
+  <div th:if="${success}" class="alert alert-success">
+    ✅ &nbsp;<span th:text="${success}"></span>
+  </div>
+  <div th:if="${error}" class="alert alert-error">
+    ❌ &nbsp;<span th:text="${error}"></span>
+  </div>
+</div>
+
+</html>

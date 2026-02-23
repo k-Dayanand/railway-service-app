@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Profile</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+
+<div class="layout">
+    <div th:replace="~{fragments/layout :: sidebar('profile','user')}"></div>
+
+    <div class="main">
+        <div th:replace="~{fragments/layout :: topHeader(${user.name})}"></div>
+
+        <div style="padding:24px;">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">👤 My Profile</span>
+                </div>
+                <div class="card-body">
+
+                    <p><b>Name:</b> <span th:text="${user.name}"></span></p>
+                    <p><b>Email:</b> <span th:text="${user.email}"></span></p>
+                    <p><b>Role:</b> <span th:text="${user.role}"></span></p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

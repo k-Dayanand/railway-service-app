@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manage Users — Railway Service</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="layout">
+  <div th:replace="~{fragments/layout :: sidebar('users','admin')}"></div>
+  <div class="main">
+    <div th:replace="~{fragments/layout :: topHeader('')}"></div>
+    <div style="padding-top:24px;">
+      <div class="page-hdr">
+        <div><div class="page-title">👤 Manage Users</div><div class="page-sub" th:text="${#lists.size(users)} + ' registered users'"></div></div>
+      </div>
+      <div th:replace="~{fragments/layout :: alerts}"></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr th:each="u : ${users}">
+                <td class="td-mono" th:text="${u.id}"></td>
+                <td style="font-weight:600;color:var(--text);" th:text="${u.name}"></td>
+                <td th:text="${u.email}"></td>
+                <td th:text="${u.phone} ?: '—'"></td>
+                <td>
+                  <span class="badge" th:classappend="${u.role.name()=='ADMIN'}?'badge-purple':'badge-blue'" th:text="${u.role}"></span>
+                </td>
+                <td th:text="${#temporals.format(u.createdAt,'dd MMM yyyy')}"></td>
+                <td>
+                  <form th:if="${u.role.name()!='ADMIN'}"
+                        th:action="@{/admin/users/delete/{id}(id=${u.id})}" method="post" style="display:inline;"
+                        onsubmit="return confirm('Delete user ' + /*[[${u.name}]]*/ '' + '?')">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                  </form>
+                  <span th:if="${u.role.name()=='ADMIN'}" style="font-size:12px;color:var(--muted);">Protected</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

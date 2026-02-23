@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — Railway Service</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div th:replace="~{fragments/layout :: sidebar('home','user')}"></div>
+
+  <!-- Main -->
+  <div class="main">
+    <div th:replace="~{fragments/layout :: topHeader(${user.name})}"></div>
+    <div style="padding-top:24px;">
+
+      <div th:replace="~{fragments/layout :: alerts}"></div>
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner mb-22">
+        <div>
+          <div class="welcome-text">
+            <h2>Good day, <span th:text="${user.name.split(' ')[0]}">User</span>! 👋</h2>
+            <p>Where are you travelling to today?</p>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
+            <a th:href="@{/user/search(from='Delhi',to='Mumbai')}" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:#fff;text-decoration:none;">
+              🏙 Delhi → Mumbai
+            </a>
+            <a th:href="@{/user/search(from='Chennai',to='Bengaluru')}" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:#fff;text-decoration:none;">
+              🌆 Chennai → Bengaluru
+            </a>
+            <a th:href="@{/user/search}" style="background:rgba(247,168,79,1);border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;color:#000;text-decoration:none;">
+              🚉 View All Routes
+            </a>
+          </div>
+        </div>
+        <div class="welcome-train">🚆</div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">🎫</div>
+          <div class="stat-label">Total Trips</div>
+          <div class="stat-value" th:text="${totalTrips}">0</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">✅</div>
+          <div class="stat-label">Upcoming</div>
+          <div class="stat-value" th:text="${upcoming}">0</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Total Spent</div>
+          <div class="stat-value">₹<span th:text="${#numbers.formatDecimal(spent,1,0)}">0</span></div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="grid-2">
+
+        <!-- Recent Tickets -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">My Recent Tickets</span>
+            <a th:href="@{/user/tickets}" class="card-link">View All →</a>
+          </div>
+
+          <div th:if="${#lists.isEmpty(tickets)}" style="padding:30px;text-align:center;color:var(--muted2);">
+            No tickets yet. Book your first train! 🚆
+          </div>
+
+          <div th:each="t : ${tickets}" class="ticket-row">
+            <div class="t-icon"
+                 th:classappend="${t.seatType.name() == 'Sleeper'} ? 'sl' : (${t.seatType.name() == 'AC'} ? 'ac' : 'gn')">
+              <span th:text="${t.seatType.name() == 'Sleeper'} ? '🛏' : (${t.seatType.name() == 'AC'} ? '💺' : '🪑')">💺</span>
+            </div>
+            <div class="t-info">
+              <div class="t-name" th:text="${t.train.trainName}">Train Name</div>
+              <div class="t-route" th:text="${t.train.source} + ' → ' + ${t.train.destination}">Route</div>
+              <span class="badge"
+                    th:classappend="${t.status.name() == 'BOOKED'} ? 'badge-green' : 'badge-red'"
+                    th:text="${t.status.name() == 'BOOKED'} ? '● Confirmed' : '● Cancelled'">
+              </span>
+            </div>
+            <div class="t-meta">
+              <div class="t-date" th:text="${t.journeyDate}">Date</div>
+              <div class="t-seat" th:text="${t.seatNumber}">Seat</div>
+              <div class="t-amt">₹<span th:text="${#numbers.formatDecimal(t.amount,1,0)}">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Book -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">🔍 Book a Train</span></div>
+          <div class="card-body">
+            <form th:action="@{/user/search}" method="get">
+              <div class="form-group">
+                <label class="form-label">From</label>
+                <input type="text" name="from" class="form-control" placeholder="e.g. Delhi"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">To</label>
+                <input type="text" name="to" class="form-control" placeholder="e.g. Mumbai"/>
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">Search Trains →</button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

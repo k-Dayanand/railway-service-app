@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Trains — Railway Service</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="layout">
+  <div th:replace="~{fragments/layout :: sidebar('search','user')}"></div>
+  <div class="main">
+    <div th:replace="~{fragments/layout :: topHeader(${user.name})}"></div>
+    <div style="padding-top:24px;">
+
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Search Trains</div>
+          <div class="page-sub">Find available trains for your route</div>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <form th:action="@{/user/search}" method="get" class="search-bar">
+        <input type="text" name="from" class="form-control" placeholder="From (e.g. Delhi)"
+               th:value="${from}" required style="flex:1;"/>
+        <input type="text" name="to"   class="form-control" placeholder="To (e.g. Mumbai)"
+               th:value="${to}"   required style="flex:1;"/>
+        <button type="submit" class="btn btn-primary">Search →</button>
+      </form>
+
+      <!-- No results -->
+      <div th:if="${trains != null and #lists.isEmpty(trains)}" class="alert alert-error">
+        ❌ No trains found for this route. Try a different source/destination.
+      </div>
+
+      <!-- Train Results -->
+      <div th:if="${trains != null and !#lists.isEmpty(trains)}">
+        <div style="color:var(--muted2);font-size:13px;margin-bottom:14px;">
+          Found <strong style="color:var(--text);" th:text="${#lists.size(trains)}">0</strong> trains
+          for <strong style="color:var(--primary);" th:text="${from}"></strong> →
+              <strong style="color:var(--primary);" th:text="${to}"></strong>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div th:each="train : ${trains}" class="train-card">
+            <div class="flex-between">
+              <div>
+                <div class="train-name" th:text="${train.trainName}">Train</div>
+                <div class="train-num"  th:text="'#' + ${train.trainNumber}">Num</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;color:var(--muted2);">From</div>
+                <div style="font-size:20px;font-weight:800;color:var(--green);">
+                  ₹<span th:text="${#numbers.formatDecimal(T(java.lang.Math).min(T(java.lang.Math).min(train.fareSleeper,train.fareAC),train.fareGeneral),1,0)}">0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="train-times" style="margin-top:12px;">
+              <div>
+                <div class="train-time" th:text="${train.departureTime}">00:00</div>
+                <div style="font-size:11px;color:var(--muted2);" th:text="${train.source}">Source</div>
+              </div>
+              <div style="text-align:center;flex:1;padding:0 16px;">
+                <div style="height:1px;background:var(--border);margin-top:12px;position:relative;">
+                  <span style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--bg);padding:0 6px;font-size:11px;color:var(--muted2);">→</span>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div class="train-time" th:text="${train.arrivalTime}">00:00</div>
+                <div style="font-size:11px;color:var(--muted2);" th:text="${train.destination}">Dest</div>
+              </div>
+            </div>
+
+            <div class="seat-pills">
+              <span class="seat-pill sp-sl" th:if="${train.sleeperSeats > 0}"
+                    th:text="'SL · ' + ${train.sleeperSeats} + ' · ₹' + ${#numbers.formatDecimal(train.fareSleeper,1,0)}"></span>
+              <span class="seat-pill sp-ac" th:if="${train.acSeats > 0}"
+                    th:text="'AC · ' + ${train.acSeats} + ' · ₹' + ${#numbers.formatDecimal(train.fareAC,1,0)}"></span>
+              <span class="seat-pill sp-gn" th:if="${train.generalSeats > 0}"
+                    th:text="'GN · ' + ${train.generalSeats} + ' · ₹' + ${#numbers.formatDecimal(train.fareGeneral,1,0)}"></span>
+            </div>
+
+            <div style="margin-top:14px;">
+              <a th:href="@{/user/book/{id}(id=${train.trainId})}" class="btn btn-primary btn-sm">
+                Book Now →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state before search -->
+      <div th:if="${trains == null}" style="text-align:center;padding:60px 20px;color:var(--muted2);">
+        <div style="font-size:48px;margin-bottom:16px;">🔍</div>
+        <div style="font-size:16px;font-weight:600;color:var(--muted);">Enter source and destination to search trains</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>

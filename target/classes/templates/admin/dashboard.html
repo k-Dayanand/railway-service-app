@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — Railway Service</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="layout">
+  <div th:replace="~{fragments/layout :: sidebar('home','admin')}"></div>
+  <div class="main">
+    <div th:replace="~{fragments/layout :: topHeader(${admin.name})}"></div>
+    <div style="padding-top:24px;">
+
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Admin Dashboard</div>
+          <div class="page-sub">Welcome back, <span th:text="${admin.name}"></span></div>
+        </div>
+        <a th:href="@{/admin/trains}" class="btn btn-primary">＋ Add Train</a>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-icon">👤</div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value" th:text="${totalUsers}">0</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">🚆</div>
+          <div class="stat-label">Active Trains</div>
+          <div class="stat-value" th:text="${totalTrains}">0</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">🎫</div>
+          <div class="stat-label">Total Bookings</div>
+          <div class="stat-value" th:text="${totalBookings}">0</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">💰</div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">₹<span th:text="${#numbers.formatDecimal(revenue,1,0)}">0</span></div>
+        </div>
+      </div>
+
+      <!-- Bottom Grid -->
+      <div class="grid-2">
+
+        <!-- Recent Bookings -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Bookings</span>
+            <a th:href="@{/admin/bookings}" class="card-link">View All →</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>Passenger</th><th>Train</th><th>Date</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr th:each="t : ${recentTickets}">
+                  <td class="td-mono" th:text="'#TK-' + ${t.ticketId}"></td>
+                  <td th:text="${t.passengerName}"></td>
+                  <td th:text="${t.train.trainName}"></td>
+                  <td th:text="${t.journeyDate}"></td>
+                  <td>
+                    <span class="badge"
+                          th:classappend="${t.status.name()=='BOOKED'}?'badge-green':'badge-red'"
+                          th:text="${t.status.name()=='BOOKED'}?'● Booked':'● Cancelled'"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Train Status -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Train Status</span>
+            <a th:href="@{/admin/trains}" class="card-link">Manage →</a>
+          </div>
+          <div th:each="t : ${trains}" class="ticket-row">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0;margin-top:4px;"></div>
+            <div class="t-info">
+              <div class="t-name" th:text="${t.trainName}"></div>
+              <div class="t-route" th:text="${t.source} + ' → ' + ${t.destination}"></div>
+            </div>
+            <div style="font-size:12px;font-weight:700;color:var(--primary);" th:text="${t.availableSeats} + ' seats'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

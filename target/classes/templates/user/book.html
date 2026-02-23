@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Ticket — Railway Service</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="layout">
+  <div th:replace="~{fragments/layout :: sidebar('search','user')}"></div>
+  <div class="main">
+    <div th:replace="~{fragments/layout :: topHeader(${user.name})}"></div>
+    <div style="padding-top:24px;max-width:760px;">
+
+      <div class="page-hdr">
+        <div>
+          <div class="page-title">Book Your Ticket</div>
+          <div class="page-sub" th:text="${train.trainName} + ' · ' + ${train.source} + ' → ' + ${train.destination}"></div>
+        </div>
+        <a th:href="@{/user/search}" class="btn btn-ghost btn-sm">← Back</a>
+      </div>
+
+      <div th:if="${error}" class="alert alert-error">❌ &nbsp;<span th:text="${error}"></span></div>
+
+      <!-- Train Info Card -->
+      <div class="card mb-22">
+        <div class="card-body">
+          <div class="flex-between">
+            <div>
+              <div style="font-size:17px;font-weight:800;" th:text="${train.trainName}">Train</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted2);" th:text="'#' + ${train.trainNumber}"></div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:800;" th:text="${train.departureTime}">16:00</div>
+              <div style="font-size:11px;color:var(--muted2);" th:text="${train.source}">Source</div>
+            </div>
+            <div style="color:var(--primary);font-size:18px;">→</div>
+            <div style="text-align:center;">
+              <div style="font-size:20px;font-weight:800;" th:text="${train.arrivalTime}">08:00</div>
+              <div style="font-size:11px;color:var(--muted2);" th:text="${train.destination}">Dest</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <form th:action="@{/user/book}" method="post" th:object="${bookingDTO}" id="bookForm">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <input type="hidden" th:field="*{trainId}" />
+        <div class="grid-2">
+          <!-- Left: Passenger Details -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">✏ Passenger Details</span></div>
+            <div class="card-body">
+
+              <div class="form-group">
+                <label class="form-label">Passenger Name</label>
+                <input type="text" th:field="*{passengerName}" class="form-control" placeholder="Full name" required/>
+                <div th:if="${#fields.hasErrors('passengerName')}" class="form-error" th:errors="*{passengerName}"></div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Age</label>
+                  <input type="number" th:field="*{passengerAge}" class="form-control" placeholder="25" min="1" max="120" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Gender</label>
+                  <select th:field="*{passengerGender}" class="form-control">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Journey Date</label>
+                <input type="date" th:field="*{journeyDate}" class="form-control" required/>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Seat Type</label>
+                <select th:field="*{seatType}" class="form-control" id="seatTypeSelect" onchange="updateFare()">
+                  <option value="General"  th:if="${train.generalSeats > 0}"  th:text="'General  (' + ${train.generalSeats}  + ' seats) — ₹' + ${#numbers.formatDecimal(train.fareGeneral,1,0)}">General</option>
+                  <option value="Sleeper"  th:if="${train.sleeperSeats > 0}" th:text="'Sleeper (' + ${train.sleeperSeats} + ' seats) — ₹' + ${#numbers.formatDecimal(train.fareSleeper,1,0)}">Sleeper</option>
+                  <option value="AC"       th:if="${train.acSeats > 0}"       th:text="'AC       (' + ${train.acSeats}       + ' seats) — ₹' + ${#numbers.formatDecimal(train.fareAC,1,0)}">AC</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Payment -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">💳 Payment</span></div>
+            <div class="card-body">
+
+              <div class="form-group">
+                <label class="form-label">Amount to Pay</label>
+                <div style="font-size:28px;font-weight:800;color:var(--green);margin-bottom:12px;">
+                  ₹<span id="fareDisplay">—</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Payment Method</label>
+                <div class="pay-method">
+                  <label class="pay-option selected" id="lbl-UPI">
+                    <input type="radio" name="paymentMethod" value="UPI" checked/>
+                    📱 UPI
+                  </label>
+                  <label class="pay-option" id="lbl-DEBIT_CARD">
+                    <input type="radio" name="paymentMethod" value="DEBIT_CARD"/>
+                    💳 Debit Card
+                  </label>
+                  <label class="pay-option" id="lbl-CREDIT_CARD">
+                    <input type="radio" name="paymentMethod" value="CREDIT_CARD"/>
+                    💳 Credit Card
+                  </label>
+                  <label class="pay-option" id="lbl-NET_BANKING">
+                    <input type="radio" name="paymentMethod" value="NET_BANKING"/>
+                    🏦 Net Banking
+                  </label>
+                </div>
+              </div>
+
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:16px;font-size:12px;color:var(--muted2);">
+                🔒 256-bit SSL encrypted &amp; secure
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-full" style="font-size:14px;padding:14px;">
+                Confirm &amp; Pay →
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+  const fares = {
+    General: /*[[${train.fareGeneral}]]*/ 0,
+    Sleeper: /*[[${train.fareSleeper}]]*/ 0,
+    AC:      /*[[${train.fareAC}]]*/ 0
+  };
+
+  function updateFare() {
+    const sel  = document.getElementById('seatTypeSelect').value;
+    document.getElementById('fareDisplay').textContent = Math.round(fares[sel]);
+  }
+  updateFare();
+
+  // Payment method highlight
+  document.querySelectorAll('.pay-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.pay-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+</script>
+</body>
+</html>

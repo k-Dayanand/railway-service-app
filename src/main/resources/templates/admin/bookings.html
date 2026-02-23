@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Bookings — Railway Service</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="layout">
+  <div th:replace="~{fragments/layout :: sidebar('bookings','admin')}"></div>
+  <div class="main">
+    <div th:replace="~{fragments/layout :: topHeader('')}"></div>
+    <div style="padding-top:24px;">
+      <div class="page-hdr">
+        <div><div class="page-title">🎫 All Bookings</div><div class="page-sub" th:text="${#lists.size(tickets)} + ' total bookings'"></div></div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Ticket</th><th>User</th><th>Train</th><th>Route</th><th>Passenger</th><th>Date</th><th>Seat</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr th:each="t : ${tickets}">
+                <td class="td-mono" th:text="'#TK-' + ${t.ticketId}"></td>
+                <td th:text="${t.user.name}"></td>
+                <td>
+                  <div style="font-weight:600;color:var(--text);" th:text="${t.train.trainName}"></div>
+                  <div style="font-size:11px;font-family:monospace;color:var(--muted2);" th:text="'#' + ${t.train.trainNumber}"></div>
+                </td>
+                <td th:text="${t.train.source} + ' → ' + ${t.train.destination}"></td>
+                <td>
+                  <div th:text="${t.passengerName}"></div>
+                  <div style="font-size:11px;color:var(--muted2);" th:text="${t.passengerAge} + ' yrs, ' + ${t.passengerGender}"></div>
+                </td>
+                <td th:text="${t.journeyDate}"></td>
+                <td class="td-mono" th:text="${t.seatNumber}"></td>
+                <td class="td-amt">₹<span th:text="${#numbers.formatDecimal(t.amount,1,0)}"></span></td>
+                <td>
+                  <span class="badge"
+                        th:classappend="${t.status.name()=='BOOKED'}?'badge-green':'badge-red'"
+                        th:text="${t.status.name()=='BOOKED'}?'● Booked':'● Cancelled'"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
